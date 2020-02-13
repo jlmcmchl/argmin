@@ -1,6 +1,6 @@
 [package]
 name = "argmin"
-version = "0.2.2"
+version = "0.2.6"
 authors = ["Stefan Kroboth <stefan.kroboth@gmail.com>"]
 edition = "2018"
 license = "MIT OR Apache-2.0"
@@ -11,7 +11,6 @@ repository = "https://github.com/argmin-rs/argmin"
 readme = "README.md"
 keywords = ["optimization", "math", "science"]
 categories = ["science"]
-#license-file = "LICENSE-APACHE"
 exclude = [
 	".travis.yml",
 	"push_docs",
@@ -22,26 +21,25 @@ exclude = [
 # argmin_testfunctions = { path = "../argmin-testfunctions" }
 argmin_core = { git = "https://github.com/jlmcmchl/argmin-core.git", branch = "master"}
 argmin_testfunctions = { git = "https://github.com/argmin-rs/argmin-testfunctions.git", branch = "master"}
-# argmin_core = "0.2.2"
+# argmin_core = "0.2.5"
 # argmin_testfunctions = "0.1.1"
-rand = { version = "0.6.5", features = ["serde1"] }
-rand_xorshift = { version = "0.1.1", features = ["serde1"] }
-serde = { version = "1.0", features = ["derive", "rc"] }
-# argmin_codegen = "0.1.8"
-# argmin_codegen = { path = "../argmin-codegen"}
-# argmin_codegen = { git = "https://github.com/argmin-rs/argmin-codegen.git", branch = "master"}
+rand = { version = "0.7.2", features = ["serde1"] }
+rand_xorshift = { version = "0.2.0", features = ["serde1"] }
+serde = { version = "1.0", features = ["rc"] }
+approx = "0.3.2"
 
 [dev-dependencies]
-ndarray = { version = "0.12.1", features = ["serde-1"] }
-ndarray-linalg = { version = "0.10.0", features = ["openblas"] }
-gnuplot = "0.0.27"
+ndarray = { version = "0.13", features = ["serde-1"] }
+ndarray-linalg = { version = "0.12", features = ["openblas"] }
+gnuplot = "0.0.34"
 paste = "0.1.5"
-
 
 [features]
 default = []
 ctrlc = ["argmin_core/ctrlc"]
 ndarrayl = ["argmin_core/ndarrayl"]
+visualizer = ["argmin_core/visualizer"]
 
 [badges]
 travis-ci = { repository = "argmin-rs/argmin", branch = "master" }
+maintenance = { status = "actively-developed" }

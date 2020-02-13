@@ -1,4 +1,4 @@
-// Copyright 2018 Stefan Kroboth
+// Copyright 2018-2020 argmin developers
 //
 // Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or
 // http://apache.org/licenses/LICENSE-2.0> or the MIT license <LICENSE-MIT or
@@ -67,6 +67,7 @@
 //! - [Gauss-Newton method](solver/gaussnewton/gaussnewton/struct.GaussNewton.html)
 //! - [Gauss-Newton method with linesearch](solver/gaussnewton/gaussnewton_linesearch/struct.GaussNewtonLS.html)
 //! - [Landweber iteration](solver/landweber/struct.Landweber.html)
+//! - [Brent's method](solver/brent/struct.Brent.html)
 //! - [Nelder-Mead method](solver/neldermead/struct.NelderMead.html)
 //! - [Simulated Annealing](solver/simulatedannealing/struct.SimulatedAnnealing.html)
 //! - [Particle Swarm Optimization](solver/particleswarm/struct.ParticleSwarm.html)
@@ -77,7 +78,7 @@
 //!
 //! ```toml
 //! [dependencies]
-//! argmin = "0.2.2"
+//! argmin = "0.2.6"
 //! ```
 //!
 //! ## Optional features (recommended)
@@ -86,7 +87,7 @@
 //!
 //! ```toml
 //! [dependencies]
-//! argmin = { version = "0.2.2", features = ["ctrlc", "ndarrayl"] }
+//! argmin = { version = "0.2.6", features = ["ctrlc", "ndarrayl"] }
 //! ```
 //!
 //! These may become default features in the future. Without these features compilation to
@@ -95,6 +96,14 @@
 //! - `ctrlc`: Uses the `ctrlc` crate to properly stop the optimization (and return the current best
 //!    result) after pressing Ctrl+C.
 //! - `ndarrayl`: Support for `ndarray`, `ndarray-linalg` and `ndarray-rand`.
+//!
+//! ## Running the tests
+//!
+//! Running the tests requires the `ndarrayl` feature to be enabled:
+//!
+//! ```bash
+//! cargo test --features "ndarrayl"
+//! ```
 //!
 //! # Defining a problem
 //!
@@ -303,7 +312,7 @@
 //!     // Add an observer which will log all iterations to the terminal (without blocking)
 //!     .add_observer(ArgminSlogLogger::term_noblock(), ObserverMode::Always)
 //!     // Log to file whenever a new best solution is found
-//!     .add_observer(ArgminSlogLogger::file("solver.log")?, ObserverMode::NewBest)
+//!     .add_observer(ArgminSlogLogger::file("solver.log", false)?, ObserverMode::NewBest)
 //!     // Write parameter vector to `params/param.arg` every 20th iteration
 //!     .add_observer(WriteToFile::new("params", "param"), ObserverMode::Every(20))
 //! #     .max_iters(2)
@@ -530,3 +539,6 @@ pub mod testfunctions {
     //! Reexport of `argmin-testfunctions`.
     pub use argmin_testfunctions::*;
 }
+
+#[cfg(test)]
+mod tests;

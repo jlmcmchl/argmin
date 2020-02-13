@@ -1,4 +1,4 @@
-// Copyright 2018 Stefan Kroboth
+// Copyright 2018-2020 argmin developers
 //
 // Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or
 // http://apache.org/licenses/LICENSE-2.0> or the MIT license <LICENSE-MIT or
@@ -61,7 +61,7 @@ where
             .unwrap_or_else(|| op.gradient(&param).unwrap());
         let h = state
             .get_hessian()
-            .unwrap_or_else(|| op.hessian(&param).unwrap());;
+            .unwrap_or_else(|| op.hessian(&param).unwrap());
         let pstar;
 
         // pb = -H^-1g
@@ -134,7 +134,7 @@ impl ArgminTrustRegion for Dogleg {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::send_sync_test;
+    use crate::test_trait_impl;
 
-    send_sync_test!(dogleg, Dogleg);
+    test_trait_impl!(dogleg, Dogleg);
 }

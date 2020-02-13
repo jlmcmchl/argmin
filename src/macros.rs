@@ -1,4 +1,4 @@
-// Copyright 2018 Stefan Kroboth
+// Copyright 2018-2020 argmin developers
 //
 // Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or
 // http://apache.org/licenses/LICENSE-2.0> or the MIT license <LICENSE-MIT or
@@ -10,7 +10,7 @@
 /// This macro crates a test for send an sync
 #[cfg(test)]
 #[macro_export]
-macro_rules! send_sync_test {
+macro_rules! test_trait_impl {
     ($n:ident, $t:ty) => {
         paste::item! {
             #[test]
@@ -27,6 +27,15 @@ macro_rules! send_sync_test {
             fn [<test_sync_ $n>]() {
                 fn assert_sync<T: Sync>() {}
                 assert_sync::<$t>();
+            }
+        }
+
+        paste::item! {
+            #[test]
+            #[allow(non_snake_case)]
+            fn [<test_clone_ $n>]() {
+                fn assert_clone<T: Clone>() {}
+                assert_clone::<$t>();
             }
         }
     };

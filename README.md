@@ -1,4 +1,6 @@
+[![CircleCI](https://circleci.com/gh/argmin-rs/argmin.svg?style=svg)](https://circleci.com/gh/argmin-rs/argmin)
 [![Build Status](https://travis-ci.org/argmin-rs/argmin.svg?branch=master)](https://travis-ci.org/argmin-rs/argmin)
+[![Gitter chat](https://badges.gitter.im/argmin-rs/community.png)](https://gitter.im/argmin-rs/community)
 
 # argmin
 
@@ -61,9 +63,10 @@ remain future plans.
   - [DFP](https://argmin-rs.github.io/argmin/argmin/solver/quasinewton/dfp/struct.DFP.html)
   - [SR1](https://argmin-rs.github.io/argmin/argmin/solver/quasinewton/sr1/struct.SR1.html)
   - [SR1-TrustRegion](https://argmin-rs.github.io/argmin/argmin/solver/quasinewton/sr1_trustregion/struct.SR1TrustRegion.html)
-- [Gauss-Newton method](https://argmin-rs.github.io/argmin/argmin/solver/gaussnewton/gaussnewton/struct.GaussNewton.html)
-- [Gauss-Newton method with linesearch](https://argmin-rs.github.io/argmin/argmin/solver/gaussnewton/gaussnewton_linesearch/struct.GaussNewtonLineSearch.html)
+- [Gauss-Newton method](https://argmin-rs.github.io/argmin/argmin/solver/gaussnewton/gaussnewton_method/struct.GaussNewton.html)
+- [Gauss-Newton method with linesearch](https://argmin-rs.github.io/argmin/argmin/solver/gaussnewton/gaussnewton_linesearch/struct.GaussNewtonLS.html)
 - [Landweber iteration](https://argmin-rs.github.io/argmin/argmin/solver/landweber/struct.Landweber.html)
+- [Brent's method](https://argmin-rs.github.io/argmin/argmin/solver/brent/index.html)
 - [Nelder-Mead method](https://argmin-rs.github.io/argmin/argmin/solver/neldermead/struct.NelderMead.html)
 - [Simulated Annealing](https://argmin-rs.github.io/argmin/argmin/solver/simulatedannealing/struct.SimulatedAnnealing.html)
 - [Particle Swarm Optimization](https://argmin-rs.github.io/argmin/argmin/solver/particleswarm/struct.ParticleSwarm.html)
@@ -74,7 +77,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-argmin = "0.2.2"
+argmin = "0.2.6"
 ```
 
 ### Optional features (recommended)
@@ -83,7 +86,7 @@ There are additional features which can be activated in `Cargo.toml`:
 
 ```toml
 [dependencies]
-argmin = { version = "0.2.2", features = ["ctrlc", "ndarrayl"] }
+argmin = { version = "0.2.6", features = ["ctrlc", "ndarrayl"] }
 ```
 
 These may become default features in the future. Without these features compilation to
@@ -92,6 +95,14 @@ These may become default features in the future. Without these features compilat
 - `ctrlc`: Uses the `ctrlc` crate to properly stop the optimization (and return the current best
    result) after pressing Ctrl+C.
 - `ndarrayl`: Support for `ndarray`, `ndarray-linalg` and `ndarray-rand`.
+
+### Running the tests
+
+Running the tests requires the `ndarrayl` feature to be enabled
+
+```bash
+cargo test --features "ndarrayl"
+```
 
 ## Defining a problem
 

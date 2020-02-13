@@ -1,4 +1,4 @@
-// Copyright 2018-2019 Stefan Kroboth
+// Copyright 2018-2020 argmin developers
 //
 // Licensed under the Apache License, Version 2.0 <LICENSE-APACHE or
 // http://apache.org/licenses/LICENSE-2.0> or the MIT license <LICENSE-MIT or
@@ -36,7 +36,7 @@ use std::default::Default;
 /// # References:
 ///
 /// [Wikipedia](https://en.wikipedia.org/wiki/Nelder%E2%80%93Mead_method)
-#[derive(Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct NelderMead<O: ArgminOp> {
     /// alpha
     alpha: f64,
@@ -306,8 +306,8 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::send_sync_test;
+    use crate::test_trait_impl;
     type Operator = MinimalNoOperator;
 
-    send_sync_test!(nelder_mead, NelderMead<Operator>);
+    test_trait_impl!(nelder_mead, NelderMead<Operator>);
 }

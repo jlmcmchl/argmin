@@ -6,19 +6,18 @@
 // copied, modified, or distributed except according to those terms.
 
 extern crate argmin;
+extern crate argmin_testfunctions;
 extern crate rand;
 extern crate rand_xorshift;
 use argmin::prelude::*;
 use argmin::solver::simulatedannealing::{SATempFunc, SimulatedAnnealing};
-use argmin::testfunctions::rosenbrock;
+use argmin_testfunctions::rosenbrock;
 use rand::prelude::*;
 use rand_xorshift::XorShiftRng;
-use serde::{Deserialize, Serialize};
 use std::default::Default;
 use std::sync::Arc;
 use std::sync::Mutex;
 
-#[derive(Clone, Serialize, Deserialize)]
 struct Rosenbrock {
     /// Parameter a, usually 1.0
     a: f64,
@@ -60,6 +59,7 @@ impl ArgminOp for Rosenbrock {
     type Output = f64;
     type Hessian = ();
     type Jacobian = ();
+    type Float = f64;
 
     fn apply(&self, param: &Vec<f64>) -> Result<f64, Error> {
         Ok(rosenbrock(param, self.a, self.b))
@@ -151,7 +151,7 @@ fn run() -> Result<(), Error> {
 
 fn main() {
     if let Err(ref e) = run() {
-        println!("{} {}", e.as_fail(), e.backtrace());
+        println!("{}", e);
         std::process::exit(1);
     }
 }

@@ -6,14 +6,13 @@
 // copied, modified, or distributed except according to those terms.
 
 extern crate argmin;
+extern crate argmin_testfunctions;
 extern crate ndarray;
 use argmin::prelude::*;
 use argmin::solver::newton::Newton;
-use argmin::testfunctions::{rosenbrock_2d, rosenbrock_2d_derivative, rosenbrock_2d_hessian};
+use argmin_testfunctions::{rosenbrock_2d, rosenbrock_2d_derivative, rosenbrock_2d_hessian};
 use ndarray::{Array, Array1, Array2};
-use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Default, Serialize, Deserialize)]
 struct Rosenbrock {
     a: f64,
     b: f64,
@@ -24,6 +23,7 @@ impl ArgminOp for Rosenbrock {
     type Output = f64;
     type Hessian = Array2<f64>;
     type Jacobian = ();
+    type Float = f64;
 
     fn apply(&self, p: &Self::Param) -> Result<Self::Output, Error> {
         Ok(rosenbrock_2d(&p.to_vec(), self.a, self.b))
@@ -52,7 +52,7 @@ fn run() -> Result<(), Error> {
     let init_param: Array1<f64> = Array1::from(vec![-1.2, 1.0]);
 
     // Set up solver
-    let solver = Newton::new();
+    let solver: Newton<f64> = Newton::new();
 
     // Run solver
     let res = Executor::new(cost, solver, init_param)
@@ -70,7 +70,7 @@ fn run() -> Result<(), Error> {
 
 fn main() {
     if let Err(ref e) = run() {
-        println!("{} {}", e.as_fail(), e.backtrace());
+        println!("{}", e);
         std::process::exit(1);
     }
 }

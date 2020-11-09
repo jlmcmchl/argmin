@@ -23,34 +23,50 @@ use std::default::Default;
 /// [0] Jorge Nocedal and Stephen J. Wright (2006). Numerical Optimization.
 /// Springer. ISBN 0-387-30303-0.
 #[derive(Clone, Serialize, Deserialize)]
-pub struct GaussNewtonLS<L> {
+pub struct GaussNewtonLS<L, F> {
     /// linesearch
     linesearch: L,
+    /// Tolerance for the stopping criterion based on cost difference
+    tol: F,
 }
 
-impl<L> GaussNewtonLS<L> {
+impl<L, F: ArgminFloat> GaussNewtonLS<L, F> {
     /// Constructor
     pub fn new(linesearch: L) -> Self {
-        GaussNewtonLS { linesearch }
+        GaussNewtonLS {
+            linesearch,
+            tol: F::epsilon().sqrt(),
+        }
+    }
+
+    /// Set tolerance for the stopping criterion based on cost difference
+    pub fn with_tol(mut self, tol: F) -> Result<Self, Error> {
+        if tol <= F::from_f64(0.0).unwrap() {
+            return Err(ArgminError::InvalidParameter {
+                text: "Gauss-Newton-Linesearch: tol must be positive.".to_string(),
+            }
+            .into());
+        }
+        self.tol = tol;
+        Ok(self)
     }
 }
 
-impl<O, L> Solver<O> for GaussNewtonLS<L>
+impl<O, L, F> Solver<O> for GaussNewtonLS<L, F>
 where
-    O: ArgminOp,
-    O::Param: Default
-        + std::fmt::Debug
-        + ArgminScaledSub<O::Param, f64, O::Param>
+    O: ArgminOp<Float = F>,
+    O::Param: std::fmt::Debug
+        + ArgminScaledSub<O::Param, O::Float, O::Param>
         + ArgminSub<O::Param, O::Param>
-        + ArgminMul<f64, O::Param>,
-    O::Output: ArgminNorm<f64>,
-    O::Jacobian: ArgminTranspose
+        + ArgminMul<O::Float, O::Param>,
+    O::Output: ArgminNorm<O::Float>,
+    O::Jacobian: ArgminTranspose<O::Jacobian>
         + ArgminInv<O::Jacobian>
         + ArgminDot<O::Jacobian, O::Jacobian>
         + ArgminDot<O::Output, O::Param>
         + ArgminDot<O::Param, O::Param>,
-    O::Hessian: Default,
-    L: Clone + ArgminLineSearch<O::Param> + Solver<OpWrapper<LineSearchOP<O>>>,
+    L: Clone + ArgminLineSearch<O::Param, O::Float> + Solver<OpWrapper<LineSearchOP<O>>>,
+    F: ArgminFloat,
 {
     const NAME: &'static str = "Gauss-Newton method with Linesearch";
 
@@ -67,14 +83,17 @@ where
 
         let p = jacobian_t.dot(&jacobian).inv()?.dot(&grad);
 
-        self.linesearch.set_search_direction(p.mul(&(-1.0)));
+        self.linesearch
+            .set_search_direction(p.mul(&(F::from_f64(-1.0).unwrap())));
 
         // create operator for linesearch
-        let line_op = OpWrapper::new_move(LineSearchOP { op: op.clone_op() });
+        let line_op = OpWrapper::new(LineSearchOP {
+            op: op.take_op().unwrap(),
+        });
 
         // perform linesearch
         let ArgminResult {
-            operator: line_op,
+            operator: mut line_op,
             state:
                 IterState {
                     param: next_param,
@@ -87,13 +106,17 @@ where
             .ctrlc(false)
             .run()?;
 
-        op.consume_op(line_op);
+        // Here we cannot use `consume_op` because the operator we need is hidden inside a
+        // `LineSearchOP` hidden inside a `OpWrapper`. Therefore we have to split this in two
+        // separate tasks: first getting the operator, then dealing with the function counts.
+        op.op = Some(line_op.take_op().unwrap().op);
+        op.consume_func_counts(line_op);
 
         Ok(ArgminIterData::new().param(next_param).cost(next_cost))
     }
 
     fn terminate(&mut self, state: &IterState<O>) -> TerminationReason {
-        if (state.get_prev_cost() - state.get_cost()).abs() < std::f64::EPSILON.sqrt() {
+        if (state.get_prev_cost() - state.get_cost()).abs() < self.tol {
             return TerminationReason::NoChangeInCost;
         }
         TerminationReason::NotTerminated
@@ -103,18 +126,20 @@ where
 #[doc(hidden)]
 #[derive(Clone, Default, Serialize, Deserialize)]
 pub struct LineSearchOP<O> {
-    op: O,
+    pub op: O,
 }
 
-impl<O: ArgminOp> ArgminOp for LineSearchOP<O>
+impl<O> ArgminOp for LineSearchOP<O>
 where
-    O::Jacobian: ArgminTranspose + ArgminDot<O::Output, O::Param>,
-    O::Output: ArgminNorm<f64>,
+    O: ArgminOp,
+    O::Jacobian: ArgminTranspose<O::Jacobian> + ArgminDot<O::Output, O::Param>,
+    O::Output: ArgminNorm<O::Float>,
 {
     type Param = O::Param;
-    type Output = f64;
+    type Output = O::Float;
     type Hessian = O::Hessian;
     type Jacobian = O::Jacobian;
+    type Float = O::Float;
 
     fn apply(&self, p: &Self::Param) -> Result<Self::Output, Error> {
         Ok(self.op.apply(p)?.norm())
@@ -141,6 +166,16 @@ mod tests {
 
     test_trait_impl!(
         gauss_newton_linesearch_method,
-        GaussNewtonLS<MoreThuenteLineSearch<Vec<f64>>>
+        GaussNewtonLS<MoreThuenteLineSearch<Vec<f64>, f64>, f64>
     );
+
+    #[test]
+    fn test_tolerance() {
+        let tol1: f64 = 1e-4;
+
+        let linesearch: MoreThuenteLineSearch<Vec<f64>, f64> = MoreThuenteLineSearch::new();
+        let GaussNewtonLS { tol: t1, .. } = GaussNewtonLS::new(linesearch).with_tol(tol1).unwrap();
+
+        assert!((t1 - tol1).abs() < std::f64::EPSILON);
+    }
 }

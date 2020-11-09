@@ -66,6 +66,7 @@
 //!   - [SR1-TrustRegion](solver/quasinewton/sr1_trustregion/struct.SR1TrustRegion.html)
 //! - [Gauss-Newton method](solver/gaussnewton/gaussnewton/struct.GaussNewton.html)
 //! - [Gauss-Newton method with linesearch](solver/gaussnewton/gaussnewton_linesearch/struct.GaussNewtonLS.html)
+//! - [Golden-section search](solver/goldensectionsearch/struct.GoldenSectionSearch.html)
 //! - [Landweber iteration](solver/landweber/struct.Landweber.html)
 //! - [Brent's method](solver/brent/struct.Brent.html)
 //! - [Nelder-Mead method](solver/neldermead/struct.NelderMead.html)
@@ -78,7 +79,7 @@
 //!
 //! ```toml
 //! [dependencies]
-//! argmin = "0.2.6"
+//! argmin = "0.3.1"
 //! ```
 //!
 //! ## Optional features (recommended)
@@ -87,7 +88,7 @@
 //!
 //! ```toml
 //! [dependencies]
-//! argmin = { version = "0.2.6", features = ["ctrlc", "ndarrayl"] }
+//! argmin = { version = "0.3.1", features = ["ctrlc", "ndarrayl"] }
 //! ```
 //!
 //! These may become default features in the future. Without these features compilation to
@@ -130,12 +131,10 @@
 //! # extern crate argmin;
 //! # extern crate argmin_testfunctions;
 //! # extern crate ndarray;
-//! use argmin::testfunctions::{rosenbrock_2d, rosenbrock_2d_derivative, rosenbrock_2d_hessian};
+//! use argmin_testfunctions::{rosenbrock_2d, rosenbrock_2d_derivative, rosenbrock_2d_hessian};
 //! use argmin::prelude::*;
-//! use serde::{Serialize, Deserialize};
 //!
 //! /// First, create a struct for your problem
-//! #[derive(Clone, Default, Serialize, Deserialize)]
 //! struct Rosenbrock {
 //!     a: f64,
 //!     b: f64,
@@ -151,6 +150,8 @@
 //!     type Hessian = Vec<Vec<f64>>;
 //!     /// Type of the Jacobian. Can be `()` if not needed.
 //!     type Jacobian = ();
+//!     /// Floating point precision
+//!     type Float = f64;
 //!
 //!     /// Apply the cost function to a parameter `p`
 //!     fn apply(&self, p: &Self::Param) -> Result<Self::Output, Error> {
@@ -182,13 +183,12 @@
 //! ```rust
 //! # #![allow(unused_imports)]
 //! # extern crate argmin;
+//! # extern crate argmin_testfunctions;
 //! use argmin::prelude::*;
 //! use argmin::solver::gradientdescent::SteepestDescent;
 //! use argmin::solver::linesearch::MoreThuenteLineSearch;
-//! # use argmin::testfunctions::{rosenbrock_2d, rosenbrock_2d_derivative};
-//! # use serde::{Deserialize, Serialize};
+//! # use argmin_testfunctions::{rosenbrock_2d, rosenbrock_2d_derivative};
 //! #
-//! # #[derive(Clone, Default, Serialize, Deserialize)]
 //! # struct Rosenbrock {
 //! #     a: f64,
 //! #     b: f64,
@@ -199,6 +199,7 @@
 //! #     type Output = f64;
 //! #     type Hessian = ();
 //! #     type Jacobian = ();
+//! #     type Float = f64;
 //! #
 //! #     fn apply(&self, p: &Self::Param) -> Result<Self::Output, Error> {
 //! #         Ok(rosenbrock_2d(p, self.a, self.b))
@@ -242,7 +243,7 @@
 //! #
 //! # fn main() {
 //! #     if let Err(ref e) = run() {
-//! #         println!("{} {}", e.as_fail(), e.backtrace());
+//! #         println!("{}", e);
 //! #         std::process::exit(1);
 //! #     }
 //! # }
@@ -267,13 +268,12 @@
 //! ```rust
 //! # #![allow(unused_imports)]
 //! # extern crate argmin;
+//! # extern crate argmin_testfunctions;
 //! # use argmin::prelude::*;
 //! # use argmin::solver::gradientdescent::SteepestDescent;
 //! # use argmin::solver::linesearch::MoreThuenteLineSearch;
-//! # use argmin::testfunctions::{rosenbrock_2d, rosenbrock_2d_derivative};
-//! # use serde::{Deserialize, Serialize};
+//! # use argmin_testfunctions::{rosenbrock_2d, rosenbrock_2d_derivative};
 //! #
-//! # #[derive(Clone, Default, Serialize, Deserialize)]
 //! # struct Rosenbrock {
 //! #     a: f64,
 //! #     b: f64,
@@ -284,6 +284,7 @@
 //! #     type Output = f64;
 //! #     type Hessian = ();
 //! #     type Jacobian = ();
+//! #     type Float = f64;
 //! #
 //! #     fn apply(&self, p: &Self::Param) -> Result<Self::Output, Error> {
 //! #         Ok(rosenbrock_2d(p, self.a, self.b))
@@ -323,7 +324,7 @@
 //! #
 //! # fn main() {
 //! #     if let Err(ref e) = run() {
-//! #         println!("{} {}", e.as_fail(), e.backtrace());
+//! #         println!("{}", e);
 //! #         std::process::exit(1);
 //! #     }
 //! # }
@@ -346,13 +347,13 @@
 //!
 //! ```rust
 //! # extern crate argmin;
+//! # extern crate argmin_testfunctions;
 //! # use argmin::prelude::*;
 //! # use argmin::solver::landweber::*;
-//! # use argmin::testfunctions::{rosenbrock_2d, rosenbrock_2d_derivative};
-//! # use argmin_core::Error;
-//! # use serde::{Deserialize, Serialize};
+//! # use argmin_testfunctions::{rosenbrock_2d, rosenbrock_2d_derivative};
+//! # use argmin::core::Error;
 //! #
-//! # #[derive(Clone, Default, Serialize, Deserialize)]
+//! # #[derive(Default)]
 //! # struct Rosenbrock {}
 //! #
 //! # impl ArgminOp for Rosenbrock {
@@ -360,6 +361,7 @@
 //! #     type Output = f64;
 //! #     type Hessian = ();
 //! #     type Jacobian = ();
+//! #     type Float = f64;
 //! #
 //! #     fn apply(&self, p: &Vec<f64>) -> Result<f64, Error> {
 //! #         Ok(rosenbrock_2d(p, 1.0, 100.0))
@@ -373,13 +375,12 @@
 //! # fn run() -> Result<(), Error> {
 //! #     // define inital parameter vector
 //! #     let init_param: Vec<f64> = vec![1.2, 1.2];
-//! #     let operator = Rosenbrock {};
 //! #
 //! #     let iters = 35;
 //! #     let solver = Landweber::new(0.001);
 //! #
-//! let res = Executor::from_checkpoint(".checkpoints/optim.arg")
-//!     .unwrap_or(Executor::new(operator, solver, init_param))
+//! let res = Executor::from_checkpoint(".checkpoints/optim.arg", Rosenbrock {})
+//!     .unwrap_or(Executor::new(Rosenbrock {}, solver, init_param))
 //!     .max_iters(iters)
 //!     .checkpoint_dir(".checkpoints")
 //!     .checkpoint_name("optim")
@@ -394,7 +395,7 @@
 //! #
 //! # fn main() {
 //! #     if let Err(ref e) = run() {
-//! #         println!("{} {}", e.as_fail(), e.backtrace());
+//! #         println!("{}", e);
 //! #     }
 //! # }
 //! ```
@@ -424,24 +425,25 @@
 //! // solver. Note that this does not include parameter vectors, gradients, Hessians, cost
 //! // function values and so on, as those will be handled by the `Executor`.
 //! #[derive(Serialize, Deserialize)]
-//! pub struct Landweber {
+//! pub struct Landweber<F> {
 //!     /// omega
-//!     omega: f64,
+//!     omega: F,
 //! }
 //!
-//! impl Landweber {
+//! impl<F> Landweber<F> {
 //!     /// Constructor
-//!     pub fn new(omega: f64) -> Self {
+//!     pub fn new(omega: F) -> Self {
 //!         Landweber { omega }
 //!     }
 //! }
 //!
-//! impl<O> Solver<O> for Landweber
+//! impl<O, F> Solver<O> for Landweber<F>
 //! where
 //!     // `O` always needs to implement `ArgminOp`
-//!     O: ArgminOp,
+//!     O: ArgminOp<Float = F>,
 //!     // `O::Param` needs to implement `ArgminScaledSub` because of the update formula
-//!     O::Param: ArgminScaledSub<O::Param, f64, O::Param>,
+//!     O::Param: ArgminScaledSub<O::Param, O::Float, O::Param>,
+//!     F: ArgminFloat,
 //! {
 //!     // This gives the solver a name which will be used for logging
 //!     const NAME: &'static str = "Landweber";
@@ -505,10 +507,6 @@
 //! Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion
 //! in the work by you, as defined in the Apache-2.0 license, shall be dual licensed as above,
 //! without any additional terms or conditions.
-// //! argmin = { git = "https://github.com/argmin-rs/argmin.git", branch = "master"}
-// //! argmin = { git = "https://github.com/argmin-rs/argmin.git",
-// //!            branch = "master",
-// //!            features = ["ctrlc", "ndarrayl"] }
 
 #![warn(missing_docs)]
 #![allow(unused_attributes)]
@@ -516,9 +514,11 @@
 // this is just to make sure that it will always stay this way.)
 #![deny(clippy::float_cmp)]
 
-extern crate argmin_core;
-extern crate argmin_testfunctions;
 extern crate rand;
+
+/// Core functionality
+#[macro_use]
+pub mod core;
 
 /// Definition of all relevant traits and types
 pub mod prelude;
@@ -529,16 +529,6 @@ pub mod solver;
 /// Macros
 #[macro_use]
 mod macros;
-
-use argmin_core::*;
-
-/// Testfunctions
-pub mod testfunctions {
-    //! # Testfunctions
-    //!
-    //! Reexport of `argmin-testfunctions`.
-    pub use argmin_testfunctions::*;
-}
 
 #[cfg(test)]
 mod tests;

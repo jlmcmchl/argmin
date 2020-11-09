@@ -6,14 +6,13 @@
 // copied, modified, or distributed except according to those terms.
 
 extern crate argmin;
+extern crate argmin_testfunctions;
 extern crate ndarray;
 use argmin::prelude::*;
 use argmin::solver::neldermead::NelderMead;
-use argmin::testfunctions::rosenbrock;
+use argmin_testfunctions::rosenbrock;
 use ndarray::{array, Array1, Array2};
-use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Default, Serialize, Deserialize)]
 struct Rosenbrock {
     a: f64,
     b: f64,
@@ -24,6 +23,7 @@ impl ArgminOp for Rosenbrock {
     type Output = f64;
     type Hessian = Array2<f64>;
     type Jacobian = ();
+    type Float = f64;
 
     fn apply(&self, p: &Self::Param) -> Result<Self::Output, Error> {
         Ok(rosenbrock(&p.to_vec(), self.a, self.b))
@@ -62,7 +62,7 @@ fn run() -> Result<(), Error> {
 
 fn main() {
     if let Err(ref e) = run() {
-        println!("{} {}", e.as_fail(), e.backtrace());
+        println!("{}", e);
         std::process::exit(1);
     }
 }

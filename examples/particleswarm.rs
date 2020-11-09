@@ -6,13 +6,12 @@
 // copied, modified, or distributed except according to those terms.
 
 extern crate argmin;
+extern crate argmin_testfunctions;
 use argmin::prelude::*;
 use argmin::solver::particleswarm::*;
-use serde::{Deserialize, Serialize};
 
 use argmin_testfunctions::himmelblau;
 
-#[derive(Default, Clone, Serialize, Deserialize)]
 struct Himmelblau {}
 
 impl ArgminOp for Himmelblau {
@@ -20,6 +19,7 @@ impl ArgminOp for Himmelblau {
     type Output = f64;
     type Hessian = ();
     type Jacobian = ();
+    type Float = f64;
 
     fn apply(&self, param: &Self::Param) -> Result<Self::Output, Error> {
         Ok(himmelblau(param))
@@ -35,11 +35,7 @@ fn run() -> Result<(), Error> {
     #[cfg(feature = "visualizer")]
     let visualizer = Visualizer3d::new()
         .delay(std::time::Duration::from_secs(1))
-        .surface(Surface::new::<Himmelblau>(
-            cost_function.clone(),
-            (-4.0, -4.0, 4.0, 4.0),
-            0.1,
-        ));
+        .surface(Surface::new(Himmelblau {}, (-4.0, -4.0, 4.0, 4.0), 0.1));
 
     {
         let solver = ParticleSwarm::new((vec![-4.0, -4.0], vec![4.0, 4.0]), 100, 0.5, 0.0, 0.5)?;
@@ -63,6 +59,6 @@ fn run() -> Result<(), Error> {
 
 fn main() {
     if let Err(ref e) = run() {
-        println!("{} {}", e.as_fail(), e.backtrace());
+        println!("{}", e);
     }
 }

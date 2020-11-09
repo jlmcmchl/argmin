@@ -6,13 +6,13 @@
 // copied, modified, or distributed except according to those terms.
 
 extern crate argmin;
+extern crate argmin_testfunctions;
+use argmin::core::Error;
 use argmin::prelude::*;
 use argmin::solver::landweber::*;
-use argmin::testfunctions::{rosenbrock_2d, rosenbrock_2d_derivative};
-use argmin_core::Error;
-use serde::{Deserialize, Serialize};
+use argmin_testfunctions::{rosenbrock_2d, rosenbrock_2d_derivative};
 
-#[derive(Clone, Default, Serialize, Deserialize)]
+#[derive(Default)]
 struct Rosenbrock {}
 
 impl ArgminOp for Rosenbrock {
@@ -20,6 +20,7 @@ impl ArgminOp for Rosenbrock {
     type Output = f64;
     type Hessian = ();
     type Jacobian = ();
+    type Float = f64;
 
     fn apply(&self, p: &Vec<f64>) -> Result<f64, Error> {
         Ok(rosenbrock_2d(p, 1.0, 100.0))
@@ -33,13 +34,12 @@ impl ArgminOp for Rosenbrock {
 fn run() -> Result<(), Error> {
     // define inital parameter vector
     let init_param: Vec<f64> = vec![1.2, 1.2];
-    let operator = Rosenbrock {};
 
     let iters = 35;
     let solver = Landweber::new(0.001);
 
-    let res = Executor::from_checkpoint(".checkpoints/landweber_exec.arg")
-        .unwrap_or(Executor::new(operator, solver, init_param))
+    let res = Executor::from_checkpoint(".checkpoints/landweber_exec.arg", Rosenbrock {})
+        .unwrap_or_else(|_| Executor::new(Rosenbrock {}, solver, init_param))
         .max_iters(iters)
         .checkpoint_dir(".checkpoints")
         .checkpoint_name("landweber_exec")
@@ -55,6 +55,6 @@ fn run() -> Result<(), Error> {
 
 fn main() {
     if let Err(ref e) = run() {
-        println!("{} {}", e.as_fail(), e.backtrace());
+        println!("{}", e);
     }
 }

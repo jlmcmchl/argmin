@@ -8,10 +8,8 @@
 extern crate argmin;
 use argmin::prelude::*;
 use argmin::solver::brent::Brent;
-use serde::{Deserialize, Serialize};
 
 /// Test function generalise from Wikipedia example
-#[derive(Clone, Default, Serialize, Deserialize)]
 struct TestFunc {
     zero1: f64,
     zero2: f64,
@@ -23,6 +21,7 @@ impl ArgminOp for TestFunc {
     type Output = f64;
     type Hessian = ();
     type Jacobian = ();
+    type Float = f64;
 
     fn apply(&self, p: &Self::Param) -> Result<Self::Output, Error> {
         Ok((p + self.zero1) * (p - self.zero2) * (p - self.zero2))

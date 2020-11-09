@@ -6,7 +6,7 @@
 
 A pure Rust optimization framework
 
-This crate offers a (work in progress) numerical optimization toolbox/framework written entirely
+This crate offers a numerical optimization toolbox/framework written entirely
 in Rust. It is at the moment potentially very buggy. Please use with care and report any bugs
 you encounter. This crate is looking for contributors!
 
@@ -65,6 +65,7 @@ remain future plans.
   - [SR1-TrustRegion](https://argmin-rs.github.io/argmin/argmin/solver/quasinewton/sr1_trustregion/struct.SR1TrustRegion.html)
 - [Gauss-Newton method](https://argmin-rs.github.io/argmin/argmin/solver/gaussnewton/gaussnewton_method/struct.GaussNewton.html)
 - [Gauss-Newton method with linesearch](https://argmin-rs.github.io/argmin/argmin/solver/gaussnewton/gaussnewton_linesearch/struct.GaussNewtonLS.html)
+- [Golden-section search](https://argmin-rs.github.io/argmin/argmin/solver/goldensectionsearch/struct.GoldenSectionSearch.html)
 - [Landweber iteration](https://argmin-rs.github.io/argmin/argmin/solver/landweber/struct.Landweber.html)
 - [Brent's method](https://argmin-rs.github.io/argmin/argmin/solver/brent/index.html)
 - [Nelder-Mead method](https://argmin-rs.github.io/argmin/argmin/solver/neldermead/struct.NelderMead.html)
@@ -77,7 +78,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-argmin = "0.2.6"
+argmin = "0.3.1"
 ```
 
 ### Optional features (recommended)
@@ -86,7 +87,7 @@ There are additional features which can be activated in `Cargo.toml`:
 
 ```toml
 [dependencies]
-argmin = { version = "0.2.6", features = ["ctrlc", "ndarrayl"] }
+argmin = { version = "0.3.1", features = ["ctrlc", "ndarrayl", "nalgebral"] }
 ```
 
 These may become default features in the future. Without these features compilation to
@@ -95,13 +96,14 @@ These may become default features in the future. Without these features compilat
 - `ctrlc`: Uses the `ctrlc` crate to properly stop the optimization (and return the current best
    result) after pressing Ctrl+C.
 - `ndarrayl`: Support for `ndarray`, `ndarray-linalg` and `ndarray-rand`.
+- `nalgebral`: Support for [`nalgebra`](https://nalgebra.org)
 
 ### Running the tests
 
-Running the tests requires the `ndarrayl` feature to be enabled
+Running the tests requires the `ndarrayl` and `nalgebral` features to be enabled
 
 ```bash
-cargo test --features "ndarrayl"
+cargo test --features "ndarrayl nalgebral"
 ```
 
 ## Defining a problem

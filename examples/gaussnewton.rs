@@ -11,7 +11,6 @@ use argmin::prelude::*;
 use argmin::solver::gaussnewton::GaussNewton;
 // use argmin::solver::linesearch::MoreThuenteLineSearch;
 use ndarray::{Array1, Array2};
-use serde::{Deserialize, Serialize};
 
 type Rate = f64;
 type S = f64;
@@ -21,7 +20,6 @@ type Measurement = (S, Rate);
 // Model used in this example:
 // `rate = (V_{max} * [S]) / (K_M + [S]) `
 // where `V_{max}` and `K_M` are the sought parameters and `[S]` and `rate` is the measured data.
-#[derive(Clone, Default, Serialize, Deserialize)]
 struct Problem {
     data: Vec<Measurement>,
 }
@@ -31,6 +29,7 @@ impl ArgminOp for Problem {
     type Output = Array1<f64>;
     type Hessian = ();
     type Jacobian = Array2<f64>;
+    type Float = f64;
 
     fn apply(&self, p: &Self::Param) -> Result<Self::Output, Error> {
         Ok(self
@@ -72,7 +71,7 @@ fn run() -> Result<(), Error> {
     let init_param: Array1<f64> = Array1::from(vec![0.9, 0.2]);
 
     // Set up solver
-    let solver: GaussNewton = GaussNewton::new();
+    let solver: GaussNewton<f64> = GaussNewton::new();
 
     // Run solver
     let res = Executor::new(cost, solver, init_param)
@@ -90,7 +89,7 @@ fn run() -> Result<(), Error> {
 
 fn main() {
     if let Err(ref e) = run() {
-        println!("{} {}", e.as_fail(), e.backtrace());
+        println!("{}", e);
         std::process::exit(1);
     }
 }

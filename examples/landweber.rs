@@ -6,13 +6,12 @@
 // copied, modified, or distributed except according to those terms.
 
 extern crate argmin;
+extern crate argmin_testfunctions;
+use argmin::core::Error;
 use argmin::prelude::*;
 use argmin::solver::landweber::*;
-use argmin::testfunctions::{rosenbrock_2d, rosenbrock_2d_derivative};
-use argmin_core::Error;
-use serde::{Deserialize, Serialize};
+use argmin_testfunctions::{rosenbrock_2d, rosenbrock_2d_derivative};
 
-#[derive(Clone, Default, Serialize, Deserialize)]
 struct Rosenbrock {}
 
 impl ArgminOp for Rosenbrock {
@@ -20,6 +19,7 @@ impl ArgminOp for Rosenbrock {
     type Output = f64;
     type Hessian = ();
     type Jacobian = ();
+    type Float = f64;
 
     fn apply(&self, p: &Vec<f64>) -> Result<f64, Error> {
         Ok(rosenbrock_2d(p, 1.0, 100.0))
@@ -51,6 +51,6 @@ fn run() -> Result<(), Error> {
 
 fn main() {
     if let Err(ref e) = run() {
-        println!("{} {}", e.as_fail(), e.backtrace());
+        println!("{}", e);
     }
 }

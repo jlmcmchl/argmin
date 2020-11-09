@@ -6,12 +6,11 @@
 // copied, modified, or distributed except according to those terms.
 
 extern crate argmin;
+extern crate argmin_testfunctions;
 use argmin::prelude::*;
 use argmin::solver::linesearch::MoreThuenteLineSearch;
-use argmin::testfunctions::{sphere, sphere_derivative};
-use serde::{Deserialize, Serialize};
+use argmin_testfunctions::{sphere, sphere_derivative};
 
-#[derive(Clone, Default, Serialize, Deserialize)]
 struct Sphere {}
 
 impl ArgminOp for Sphere {
@@ -19,6 +18,7 @@ impl ArgminOp for Sphere {
     type Output = f64;
     type Hessian = ();
     type Jacobian = ();
+    type Float = f64;
 
     fn apply(&self, param: &Vec<f64>) -> Result<f64, Error> {
         Ok(sphere(param))
@@ -70,6 +70,6 @@ fn run() -> Result<(), Error> {
 
 fn main() {
     if let Err(ref e) = run() {
-        println!("{} {}", e.as_fail(), e.backtrace());
+        println!("{}", e);
     }
 }

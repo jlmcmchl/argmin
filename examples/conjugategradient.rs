@@ -8,9 +8,7 @@
 extern crate argmin;
 use argmin::prelude::*;
 use argmin::solver::conjugategradient::ConjugateGradient;
-use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Default, Serialize, Deserialize)]
 struct MyProblem {}
 
 impl ArgminOp for MyProblem {
@@ -18,6 +16,7 @@ impl ArgminOp for MyProblem {
     type Output = Vec<f64>;
     type Hessian = ();
     type Jacobian = ();
+    type Float = f64;
 
     fn apply(&self, p: &Vec<f64>) -> Result<Vec<f64>, Error> {
         Ok(vec![4.0 * p[0] + 1.0 * p[1], 1.0 * p[0] + 3.0 * p[1]])
@@ -53,6 +52,6 @@ fn run() -> Result<(), Error> {
 
 fn main() {
     if let Err(ref e) = run() {
-        println!("{} {}", e.as_fail(), e.backtrace());
+        println!("{}", e);
     }
 }

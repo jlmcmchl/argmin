@@ -8,14 +8,13 @@
 #![allow(unused_imports)]
 
 extern crate argmin;
+extern crate argmin_testfunctions;
 use argmin::prelude::*;
 use argmin::solver::gradientdescent::SteepestDescent;
 use argmin::solver::linesearch::HagerZhangLineSearch;
 use argmin::solver::linesearch::MoreThuenteLineSearch;
-use argmin::testfunctions::{rosenbrock_2d, rosenbrock_2d_derivative};
-use serde::{Deserialize, Serialize};
+use argmin_testfunctions::{rosenbrock_2d, rosenbrock_2d_derivative};
 
-#[derive(Clone, Default, Serialize, Deserialize)]
 struct Rosenbrock {
     a: f64,
     b: f64,
@@ -26,6 +25,7 @@ impl ArgminOp for Rosenbrock {
     type Output = f64;
     type Hessian = ();
     type Jacobian = ();
+    type Float = f64;
 
     fn apply(&self, p: &Self::Param) -> Result<Self::Output, Error> {
         Ok(rosenbrock_2d(p, self.a, self.b))
@@ -69,7 +69,7 @@ fn run() -> Result<(), Error> {
 
 fn main() {
     if let Err(ref e) = run() {
-        println!("{} {}", e.as_fail(), e.backtrace());
+        println!("{}", e);
         std::process::exit(1);
     }
 }
